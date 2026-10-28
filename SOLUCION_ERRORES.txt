@@ -1,0 +1,13 @@
+CAMBIOS REALIZADOS
+1. lib/main.dart: agregado el parentesis que faltaba al PopupMenuButton en la linea 113.
+2. pubspec.yaml: incorporadas dependencias de desarrollo flutter_test y flutter_lints.
+
+INSTALACION
+Copia lib/main.dart y pubspec.yaml en tu proyecto C:\Users\Asus\StudioProjects\cusco_limpio.
+Conserva tus otras carpetas y tu AndroidManifest.xml.
+En PowerShell, dentro del proyecto:
+flutter pub get
+flutter analyze
+flutter run
+
+Nota: no se pudo compilar con Flutter en este entorno; comprueba el resultado con flutter analyze.
