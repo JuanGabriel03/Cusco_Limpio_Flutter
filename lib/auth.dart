@@ -8,15 +8,16 @@ import 'package:shared_preferences/shared_preferences.dart';
 // Para desplegar con usuarios reales se necesita backend y autorizacion del servidor.
 class DemoUser {
   final String id, name, email, role, brigade, salt, passwordHash;
+  final bool active;
   const DemoUser({required this.id, required this.name, required this.email,
-    required this.role, required this.brigade, required this.salt, required this.passwordHash});
+    required this.role, required this.brigade, required this.salt, required this.passwordHash, this.active=true});
   factory DemoUser.fromJson(Map<String,dynamic> json) => DemoUser(
     id: json['id'] as String, name: json['name'] as String,
     email: json['email'] as String,role: json['role'] as String,
     brigade: json['brigade'] as String? ?? '',salt: json['salt'] as String,
-    passwordHash: json['passwordHash'] as String);
+    passwordHash: json['passwordHash'] as String,active: json['active'] != false);
   Map<String,dynamic> toJson()=>{'id':id,'name':name,'email':email,'role':role,
-    'brigade':brigade,'salt':salt,'passwordHash':passwordHash};
+    'brigade':brigade,'salt':salt,'passwordHash':passwordHash,'active':active};
 }
 
 class DemoAuth extends ChangeNotifier {
@@ -30,6 +31,21 @@ class DemoAuth extends ChangeNotifier {
     return List.generate(24,(_)=>random.nextInt(256).toRadixString(16).padLeft(2,'0')).join();
   }
   static String _hash(String password,String salt)=>sha256.convert(utf8.encode('$salt:$password')).toString();
+  List<DemoUser> get users => List.unmodifiable(_users);
+  Future<String?> updateUser(String id,{String? role,String? brigade,bool? active}) async {
+    if(current?.role!='admin') return 'Solo el administrador puede gestionar las cuentas.';
+    final index=_users.indexWhere((u)=>u.id==id);
+    if(index<0) return 'No se encontró la cuenta.';
+    final old=_users[index];
+    if(old.id==current!.id && (role!=null && role!='admin' || active==false)) return 'No puedes quitar tu propio acceso de administrador.';
+    final allowed=['citizen','collector','municipal','admin'];
+    if(role!=null && !allowed.contains(role)) return 'Rol inválido.';
+    final nextRole=role??old.role;
+    _users[index]=DemoUser(id:old.id,name:old.name,email:old.email,role:nextRole,
+      brigade:nextRole=='collector'?(brigade??(old.brigade.isEmpty?'Brigada 01':old.brigade)):'',
+      salt:old.salt,passwordHash:old.passwordHash,active:active??old.active);
+    await _persistUsers();notifyListeners();return null;
+  }
   DemoUser _make(String name,String email,String role,String brigade,String password){
     final salt=_salt();
     return DemoUser(id:'u-${DateTime.now().microsecondsSinceEpoch}-${_users.length}',name:name,email:email.toLowerCase(),role:role,brigade:brigade,salt:salt,passwordHash:_hash(password,salt));
@@ -66,6 +82,7 @@ class DemoAuth extends ChangeNotifier {
     DemoUser? found;
     for(final u in _users) {if(u.email==clean){found=u;break;}}
     if(found==null || found.passwordHash!=_hash(password,found.salt)) return 'Correo o contraseña incorrectos.';
+    if(!found.active) return 'Esta cuenta está deshabilitada. Contacta al administrador.';
     current=found;
     final prefs=await SharedPreferences.getInstance();
     await prefs.setString(_sessionKey,found.id);

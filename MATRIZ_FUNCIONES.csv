@@ -1,0 +1,13 @@
+Función;Ciudadano;Administrador;Municipalidad;Recolector
+Registrar incidencias;SI;NO;NO;NO
+Consultar sus reportes;SI;NO;NO;NO
+Ver panel e indicadores generales;NO;SI;NO;NO
+Gestionar usuarios roles y accesos;NO;SI;NO;NO
+Consultar bitácora del sistema;NO;SI;NO;NO
+Asignar brigada a un reporte;NO;NO;SI;NO
+Priorizar reporte;NO;NO;SI;NO
+Registrar nota operativa;NO;NO;SI;NO
+Cerrar reporte como solucionado;NO;NO;SI;NO
+Consultar puntos de su brigada;NO;NO;NO;SI
+Marcar punto atendido;NO;NO;NO;SI
+Visualizar mapas;SI;SI;SI;SI

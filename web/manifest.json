@@ -1,6 +1,6 @@
 {
-    "name": "cusco_limpio",
-    "short_name": "cusco_limpio",
+    "name": "cusco_limpio_rutas",
+    "short_name": "cusco_limpio_rutas",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",
